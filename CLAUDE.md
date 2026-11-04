@@ -18,7 +18,7 @@ Run from `backend/`. Requires [uv](https://docs.astral.sh/uv/).
 uv sync
 uv run python -m scripts.dev_server      # the whole app with a fake login and a demo caterer, no accounts
 uv run python -m scripts.migrate         # apply new migrations to DATABASE_URL
-uv run uvicorn app.main:app --reload     # http://127.0.0.1:8000  (/health, /admin/, /customer/)
+uv run uvicorn app.main:app --reload     # http://127.0.0.1:8000  (/ landing, /health, /admin/, /c/{slug}/)
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest
@@ -100,7 +100,8 @@ Worked in order. Don't build features of a later phase early.
 | Design | Redesign and Yummai logo | Done |
 | Emails | New-order email to caterers, not yet tested with the real provider | Done |
 | SQLite | Replaced Postgres everywhere (ADR 0007) | Done |
+| Landing page | Hebrew page at `/` for caterers, login button only; photo licence and a contact method still open | Done |
 | Test site | Supabase Auth and Storage plus Railway with a volume, needs the user's accounts and approval | Skipped for now |
 | Pilot | First real caterer, needs its own approval | Not started |
 
-Everything before SQLite is merged into `dev` and `main` on `origin`; SQLite is on `feat/sqlite-database`. `gh` defaults to `upstream` here, so pass `--repo mardar-anna/ai-catering-platform`.
+Everything through Emails is merged into `dev` and `main` on `origin`; SQLite and the landing page are merged into `dev` and wait in the `dev` → `main` PR (#7). `gh` defaults to `upstream` here, so pass `--repo mardar-anna/ai-catering-platform`.

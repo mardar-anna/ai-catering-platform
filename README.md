@@ -31,6 +31,8 @@ Sample menu and made-up names.
 | 8 | Ready to go live: rate limits, security headers, Docker, deployment guide | Done |
 | Design | New look with food photos, and the Yummai logo on every page | Done |
 | Emails | Email to the caterer on a new order, with no customer details | Done |
+| SQLite | One SQLite file everywhere; Supabase only for logins and images (ADR 0007) | Done |
+| Landing page | Hebrew home page for caterers at `/`, with a login button only | Done |
 | Test site | Online test version on Supabase and Railway | Skipped for now |
 | Pilot | First real caterer | Not started |
 
@@ -48,8 +50,8 @@ Sample menu and made-up names.
 
 ```
 backend/        FastAPI app (api, core, models, schemas, services, repositories, agents) + tests
-frontend/       customer/ and admin/ pages, css/, js/, assets/
-database/       migrations/ (SQL, Supabase CLI format)
+frontend/       index.html (landing page), customer/ and admin/ pages, css/, js/, fonts/, img/, assets/
+database/       migrations/ (plain SQL, applied in filename order)
 docs/           PRD, architecture, schema, API, AI agent, UX/UI, ADRs, open decisions
 .github/        CI workflow
 Dockerfile      Production image used by Railway
@@ -68,6 +70,7 @@ uv sync                       # install dependencies
 uv run uvicorn app.main:app --reload
 ```
 
+- Landing page: http://127.0.0.1:8000/
 - API health: http://127.0.0.1:8000/health
 - Customer UI: http://127.0.0.1:8000/c/{slug}/
 - Admin UI: http://127.0.0.1:8000/admin/
@@ -94,7 +97,8 @@ Create the login in Supabase, then run `uv run python -m scripts.create_caterer 
 | `fastapi` | Mandated web framework |
 | `uvicorn[standard]` | ASGI server for FastAPI |
 | `pydantic-settings` | Typed config from environment variables |
-| `sqlalchemy` | ORM and queries (ADR 0002) |
+| `sqlalchemy` | ORM and queries on SQLite (ADR 0007) |
+| `tzdata` | Time zone data for Israel time on Windows |
 | `pyjwt[crypto]` | Verifies Supabase login tokens |
 | `httpx` | Calls Supabase Storage and Resend; also used by the test client |
 | `anthropic` | Calls the model behind the AI assistant |
