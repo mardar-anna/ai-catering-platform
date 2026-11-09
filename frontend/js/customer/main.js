@@ -117,7 +117,7 @@ function render() {
   if (state.step !== "home") { stopHero?.(); stopHero = null; }
   const view = VIEWS[state.step] ?? renderHome;
   app.replaceChildren(header(), ...view(), footer());
-  if (state.step === "home") stopHero = startHero(document.querySelector(".hero-media"));
+  if (state.step === "home") stopHero = startHero(document.querySelector(".hero-media"), document.querySelector(".hero-pause"));
   refreshSheet?.();
   syncChat(state.order?.status === "draft" && state.step !== "home" && state.step !== "details");
 }
@@ -156,7 +156,8 @@ function header() {
         navButton("ההזמנה שלי", inOrder, () => leaveTo(state.order ? "summary" : "details")),
         navButton("אודות", false, () => go("home", { target: "about" }))),
       phone
-        ? h("a", { className: "phone-pill", href: `tel:${phone.replace(/\s/g, "")}` },
+        // On phones only the icon shows, so the link's name comes from aria-label.
+        ? h("a", { className: "phone-pill", href: `tel:${phone.replace(/\s/g, "")}`, "aria-label": `מוקד הזמנות, טלפון ${phone}` },
           icon("call"), h("bdi", {}, phone), h("span", { className: "phone-label" }, "מוקד הזמנות"))
         : null));
 }
@@ -170,6 +171,7 @@ function footer() {
         caterer.kashrut_status ? h("span", {}, `כשרות: ${caterer.kashrut_status}`) : null),
       h("div", { className: "footer-links" },
         caterer.contact_phone ? h("a", { href: `tel:${caterer.contact_phone.replace(/\s/g, "")}` }, "שירות לקוחות: ", h("bdi", {}, caterer.contact_phone)) : null,
+        h("a", { href: "/accessibility/" }, "הצהרת נגישות"),
         h("span", {}, `© ${new Date().getFullYear()} ${caterer.name}`))));
 }
 
@@ -216,7 +218,10 @@ function renderHome() {
           h("button", { type: "button", className: "accent pill hero-primary", onclick: () => go("menu") },
             "לצפייה בתפריט", icon("arrow_forward")),
           h("button", { type: "button", className: "pill hero-secondary", onclick: () => go(hasOrder ? "menu" : "details") },
-            icon("edit_calendar"), hasOrder ? "להמשך ההזמנה שלכם" : "לתכנון האירוע שלכם")))),
+            icon("edit_calendar"), hasOrder ? "להמשך ההזמנה שלכם" : "לתכנון האירוע שלכם")),
+        // hero.js sets its label and icon, and hides it while motion is off.
+        h("button", { type: "button", className: "hero-pause", "aria-pressed": "false" },
+          h("span", { className: "icon icon-pause", "aria-hidden": "true" }), h("span", { className: "label" }, "עצירת הסרטון")))),
     h("section", { className: "features", "aria-label": `למה ${caterer.name}` },
       h("ul", {}, features.map(([name, title, text]) => h("li", {},
         h("span", { className: "icon-tile" }, icon(name)),

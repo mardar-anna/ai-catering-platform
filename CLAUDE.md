@@ -32,7 +32,7 @@ E2E tests live in `e2e/` and drive a real browser against the real app and Postg
 
 ```bash
 uv run --with playwright playwright install chromium
-uv run --with playwright pytest ../e2e
+uv run --with playwright --with axe-playwright-python pytest ../e2e
 ```
 
 The database is Supabase Postgres (ADR 0009). The projects are `yummai-dev` and `yummai-test`, and their keys are in the git-ignored `.env.supabase-dev` and `.env.supabase-test`. Supabase also provides Auth, Storage and Realtime.

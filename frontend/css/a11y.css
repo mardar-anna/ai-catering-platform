@@ -1,0 +1,98 @@
+/* The accessibility menu (js/a11y.js) and the display choices it sets as classes on <html>.
+   Logical properties only: the UI is RTL. */
+
+/* ---------- The opener: a tab on the page's edge, the same place on every page ---------- */
+.a11y-opener {
+  /* Above the page and its sticky bars (20-30), below sheets, chat and notices (44-60), so it never covers their buttons. */
+  position: fixed; z-index: 40; inset-inline-end: 0; inset-block-start: 40%;
+  inline-size: 48px; min-block-size: 48px; padding: 0;
+  border: 2px solid #fff; border-inline-end: 0;
+  border-start-start-radius: var(--radius); border-end-start-radius: var(--radius);
+  border-start-end-radius: 0; border-end-end-radius: 0;
+  background: var(--primary); color: #fff; box-shadow: var(--shadow-2);
+}
+.a11y-opener:hover { background: var(--primary-container); }
+.a11y-opener .icon { inline-size: 28px; block-size: 28px; }
+.a11y-opener:focus-visible { outline: 3px solid var(--secondary-container); outline-offset: 2px; }
+
+/* ---------- The panel ---------- */
+dialog.a11y-panel {
+  inline-size: min(360px, calc(100vw - var(--space-6)));
+  margin-inline: auto var(--space-4);
+  padding: var(--space-5);
+}
+dialog.a11y-panel::backdrop { background: rgb(0 22 45 / 0.2); }
+.a11y-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-block-end: var(--space-3); }
+.a11y-head h2 { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
+.a11y-panel fieldset { margin: 0 0 var(--space-3); padding: 0; border: 0; }
+.a11y-panel legend { margin-block-end: var(--space-2); padding: 0; color: var(--primary); font-weight: 600; }
+.a11y-sizes { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); }
+.a11y-size, .a11y-toggle {
+  display: flex; align-items: center; gap: var(--space-2); min-block-size: 44px;
+  padding-inline: var(--space-3); border: 1px solid var(--surface-high); border-radius: var(--radius);
+  background: var(--surface-low); color: var(--on-surface); cursor: pointer;
+}
+.a11y-toggle { margin-block-end: var(--space-2); }
+.a11y-size:has(input:checked), .a11y-toggle:has(input:checked) { border-color: var(--primary); background: var(--surface-container); font-weight: 600; }
+.a11y-size:has(input:focus-visible), .a11y-toggle:has(input:focus-visible) { outline: 3px solid var(--secondary); outline-offset: 2px; }
+.a11y-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.a11y-foot a { color: var(--primary); font-weight: 600; text-underline-offset: 3px; }
+
+/* ---------- Text size: rem-based, so the whole layout grows with it ---------- */
+html.a11y-text-1 { font-size: 112.5%; }
+html.a11y-text-2 { font-size: 125%; }
+html.a11y-text-3 { font-size: 150%; }
+
+/* ---------- High contrast: darker text, borders and accents on the same light surfaces ---------- */
+html.a11y-contrast {
+  --primary: #000000;
+  --primary-container: #1a1a1a;
+  --secondary: #5c3300;
+  --on-secondary-container: #3d2200;
+  --tertiary: #003526;
+  --on-surface: #000000;
+  --on-surface-variant: #000000;
+  --outline: #000000;
+  --surface: #ffffff;
+  --surface-low: #ffffff;
+  --error: #8c0000;
+  --success: #003526;
+  --warning: #3d2200;
+}
+html.a11y-contrast :is(.card, input, select, textarea, button.secondary, .stepper, .a11y-size, .a11y-toggle, .rows > li, .lines tbody tr) { border-color: #000; }
+html.a11y-contrast .hero-scrim { background: rgb(0 0 0 / 0.8); }
+
+/* ---------- Links and buttons stand out ---------- */
+html.a11y-links a, html.a11y-links button.link, html.a11y-links .text-link, html.a11y-links .nav-link {
+  text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px;
+}
+html.a11y-links button:not(.link, .a11y-opener) { outline: 2px solid currentcolor; outline-offset: -4px; }
+
+/* ---------- Readable font with wider spacing (WCAG 1.4.12 text spacing values) ---------- */
+html.a11y-readable {
+  --font: Arial, "Segoe UI", Tahoma, sans-serif;
+}
+html.a11y-readable body { line-height: 1.6; letter-spacing: 0.06em; word-spacing: 0.16em; }
+html.a11y-readable p { margin-block-end: 1em; }
+
+/* ---------- No motion: as with the system "reduce motion" setting (the hero video checks this class too) ---------- */
+html.a11y-motion *, html.a11y-motion *::before, html.a11y-motion *::after {
+  animation: none !important; transition: none !important; scroll-behavior: auto !important;
+}
+
+/* ---------- A strong keyboard focus ring ---------- */
+html.a11y-focus :focus-visible, html.a11y-focus input:focus-visible, html.a11y-focus select:focus-visible, html.a11y-focus textarea:focus-visible {
+  outline: 4px solid #000 !important; outline-offset: 2px !important;
+  box-shadow: 0 0 0 7px #ffd400 !important;
+}
+
+/* ---------- The accessibility statement page (/accessibility/) ---------- */
+.statement-header { padding: var(--space-3) var(--space-4); border-block-end: 1px solid var(--surface-high); background: var(--surface-lowest); }
+.statement-home { display: inline-flex; align-items: center; gap: var(--space-2); min-block-size: 44px; color: var(--primary); font-weight: 600; }
+.statement { max-inline-size: 760px; margin-inline: auto; padding: var(--space-8) var(--space-4) var(--space-10); }
+.statement:focus { outline: none; }
+.statement section { margin-block-start: var(--space-8); }
+.statement ul { margin-block: 0 var(--space-3); padding-inline-start: var(--space-5); }
+.statement li { margin-block-end: var(--space-2); }
+.statement a { color: var(--secondary); font-weight: 600; text-underline-offset: 3px; }
+.statement-date { margin-block-start: var(--space-8); }

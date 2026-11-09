@@ -6,7 +6,7 @@ Status: **v1.0, the Stitch redesign** (ADR 0008). The site belongs to one catere
 
 - Hebrew RTL throughout: `<html lang="he" dir="rtl">`, prices and phone numbers in `<bdi>` so they read correctly.
 - One responsive application: phones under 768 px, tablets 768–1179 px, computers from 1180 px.
-- Accessibility target WCAG 2.2 AA: 4.5:1 text contrast, visible focus, 44×44 px touch targets, a label on every input, errors linked to their field (`aria-invalid`, `aria-describedby`), `aria-live` for status and filter results, full keyboard use, a skip link.
+- Accessibility target WCAG 2.2 AA: 4.5:1 text contrast, visible focus, 44×44 px touch targets, a label on every input, errors linked to their field (`aria-invalid`, `aria-describedby`), `aria-live` for status and filter results, full keyboard use, a skip link on every page. Every page loads the accessibility menu (`js/a11y.js`, `css/a11y.css`) and the footer links to the accessibility statement at `/accessibility/` (ADR 0010).
 - CSS uses logical properties only. `prefers-reduced-motion` is respected.
 - Never show a pending quotation as a confirmed booking. Status uses explicit text ("ממתין לאישור הקייטרינג").
 - Data the site doesn't have is never invented: no ratings, no "chef recommended" badges, no preparation times. Unknown dietary facts and calories show "לא צוין"; filters match only confirmed values.

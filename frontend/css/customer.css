@@ -71,10 +71,11 @@ body.sheet-open { overflow: hidden; }
 .home { display: block; }
 .hero {
   position: relative; display: flex; overflow: hidden;
-  min-block-size: 560px; block-size: calc(100svh - 64px); max-block-size: 920px;
+  /* A minimum, not a fixed height: larger text (zoom or the accessibility menu) makes it grow, never clip. */
+  min-block-size: clamp(560px, calc(100svh - 64px), 920px);
   background: #fdfbf7;
 }
-@media (min-width: 1024px) { .hero { min-block-size: 640px; block-size: calc(100svh - var(--header-block)); } }
+@media (min-width: 1024px) { .hero { min-block-size: clamp(640px, calc(100svh - var(--header-block)), 920px); } }
 .hero-media { position: absolute; inset: 0; background: #fdfbf7; isolation: isolate; pointer-events: none; user-select: none; }
 /* The food sits on the right of the source footage, under the Hebrew text.
    Mirroring the media moves it to the left so the text never covers it. */
@@ -119,6 +120,18 @@ body.sheet-open { overflow: hidden; }
   .hero-media.is-playing .hero-poster { visibility: visible; }
 }
 .hero-video.is-unavailable { display: none; }
+/* "Stop motion" in the accessibility menu acts like the system setting. */
+html.a11y-motion .hero-video { display: none; }
+html.a11y-motion .hero-media.is-playing .hero-poster { visibility: visible; }
+/* Pause/play for the video (WCAG 2.2.2), under the hero buttons so it never covers them. */
+.hero-pause {
+  align-self: flex-start; margin-block-start: var(--space-6);
+  gap: var(--space-2); min-block-size: 44px; padding-inline: var(--space-4);
+  border: 1px solid rgb(255 255 255 / 0.7); border-radius: 999px;
+  background: rgb(0 22 45 / 0.72); color: #fff; font-size: 0.85rem;
+}
+.hero-pause:hover { background: rgb(0 22 45 / 0.9); }
+.hero-pause:focus-visible { outline: 3px solid var(--secondary-container); outline-offset: 2px; }
 
 .hero-content {
   position: relative; z-index: 10; display: flex; flex-direction: column; align-items: flex-start;
