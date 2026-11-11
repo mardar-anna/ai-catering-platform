@@ -1,7 +1,8 @@
 # Entity relationship diagram
 
 The Postgres schema from `supabase/migrations/20261105000000_schema.sql`.
-Column details and rules are in `DATABASE_SCHEMA.md`.
+Column details and rules are in `DATABASE_SCHEMA.md`; row-level security, Storage and
+Realtime are in `supabase/migrations/20261105000100_rls_storage_realtime.sql`.
 
 Notes:
 
@@ -9,13 +10,19 @@ Notes:
   `dishes`) has a `caterer_id`. To keep the diagram readable, only the top-level
   tables draw a line to `caterers`; the rest reach it through their parent, and
   composite foreign keys on `(caterer_id, ...)` keep the whole chain in one caterer.
-- Money columns are integer hundredths (12.50 is 1250). Ids are 32 hex characters.
+- Ids are `uuid` (from `gen_random_uuid()`), except `allergens.id`, a `smallint` identity.
+- Money columns are `numeric(10, 2)` in the caterer's currency (ILS by default). Quantities are
+  `numeric(10, 2)` and portion rules `numeric(5, 2)`. Mermaid can't show the precision,
+  so the diagram says `numeric`.
+- Times are `timestamptz`; `date` and `time` columns hold a calendar day or a time of day.
+- Columns typed with an enum name use Postgres enums; the comment lists the values.
+- `caterer_users.auth_user_id` references Supabase's `auth.users`, which is outside this diagram.
 - `quantity_rules.caterer_id` is nullable: null is the platform default.
 
 ```mermaid
 erDiagram
     caterers {
-        text id PK
+        uuid id PK
         text slug UK
         text name
         text logo_path
@@ -24,204 +31,204 @@ erDiagram
         text notification_email
         text kashrut_status
         text kashrut_certificate_path
-        text kashrut_mixing_rule "block | warn"
-        text currency
-        integer ai_monthly_message_limit
-        integer is_active
-        text created_at
-        text updated_at
+        kashrut_mixing_rule kashrut_mixing_rule "block | warn"
+        char(3) currency
+        int ai_monthly_message_limit
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     caterer_users {
-        text id PK
-        text caterer_id FK
-        text auth_user_id UK "Supabase Auth user"
-        text created_at
+        uuid id PK
+        uuid caterer_id FK
+        uuid auth_user_id UK "Supabase auth.users"
+        timestamptz created_at
     }
 
     customers {
-        text id PK
-        text caterer_id FK
+        uuid id PK
+        uuid caterer_id FK
         text full_name
         text phone
         text email
-        text created_at
-        text updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     events {
-        text id PK
-        text caterer_id FK
-        text customer_id FK
+        uuid id PK
+        uuid caterer_id FK
+        uuid customer_id FK
         text event_type
-        text event_date
-        integer adults
-        integer children
-        integer vegetarian_guests
-        integer vegan_guests
-        integer restricted_guests
+        date event_date
+        int adults
+        int children
+        int vegetarian_guests
+        int vegan_guests
+        int restricted_guests
         text dietary_notes
-        text created_at
-        text updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     dish_categories {
-        text id PK
-        text caterer_id FK
+        uuid id PK
+        uuid caterer_id FK
         text name
-        text category_type "salad | main | side | dessert | drink | other"
-        integer sort_order
-        integer is_active
-        text created_at
-        text updated_at
+        category_type category_type "salad | main | side | dessert | drink | other"
+        int sort_order
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     dishes {
-        text id PK
-        text caterer_id FK
-        text category_id FK
+        uuid id PK
+        uuid caterer_id FK
+        uuid category_id FK
         text name
         text description
         text image_path
-        text pricing_unit "per_guest | per_tray | per_weight | per_item"
-        integer unit_price
+        pricing_unit pricing_unit "per_guest | per_tray | per_weight | per_item"
+        numeric unit_price
         text unit_label
-        integer servings_per_unit
-        integer calories_per_portion
+        numeric servings_per_unit
+        int calories_per_portion
         text portion_description
-        integer min_quantity
-        integer is_available
-        text created_at
-        text updated_at
+        numeric min_quantity
+        boolean is_available
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     dish_dietary {
-        text dish_id PK, FK
-        text kashrut_class "meat | dairy | pareve, null = unknown"
-        integer is_vegetarian "null = unknown"
-        integer is_vegan "null = unknown"
-        text verified_at
+        uuid dish_id PK, FK
+        kashrut_class kashrut_class "meat | dairy | pareve, null = unknown"
+        boolean is_vegetarian "null = unknown"
+        boolean is_vegan "null = unknown"
+        timestamptz verified_at
     }
 
     allergens {
-        integer id PK
+        smallint id PK
         text name UK
     }
 
     dish_allergens {
-        text dish_id PK, FK
-        integer allergen_id PK, FK
-        text status "contains | free | unknown"
+        uuid dish_id PK, FK
+        smallint allergen_id PK, FK
+        allergen_status status "contains | free | unknown, no row = unknown"
     }
 
     delivery_zones {
-        text id PK
-        text caterer_id FK
+        uuid id PK
+        uuid caterer_id FK
         text name
-        integer fee
-        text definition "JSON"
-        integer is_active
+        numeric fee
+        jsonb definition
+        boolean is_active
     }
 
     time_slots {
-        text id PK
-        text caterer_id FK
-        text fulfillment_type "pickup | delivery"
-        integer weekday "0-6"
-        text start_time
-        text end_time
-        integer capacity
-        integer is_active
+        uuid id PK
+        uuid caterer_id FK
+        fulfillment_type fulfillment_type "pickup | delivery"
+        smallint weekday "0-6"
+        time start_time
+        time end_time
+        int capacity
+        boolean is_active
     }
 
     blocked_dates {
-        text id PK
-        text caterer_id FK
-        text date
+        uuid id PK
+        uuid caterer_id FK
+        date date
         text reason
     }
 
     quantity_rules {
-        text id PK
-        text caterer_id FK "null = platform default"
-        text category_type
-        integer portions_per_adult
-        integer portions_per_child
+        uuid id PK
+        uuid caterer_id FK "null = platform default"
+        category_type category_type
+        numeric portions_per_adult
+        numeric portions_per_child
     }
 
     orders {
-        text id PK
-        text caterer_id FK
+        uuid id PK
+        uuid caterer_id FK
         text access_token_hash UK
-        text customer_id FK
-        text event_id FK, UK
-        text status "draft | pending_approval | approved | rejected"
-        integer version
-        text fulfillment_type "pickup | delivery"
-        text requested_at
-        text time_slot_id FK
+        uuid customer_id FK
+        uuid event_id FK, UK
+        order_status status "draft | pending_approval | approved | rejected"
+        int version
+        fulfillment_type fulfillment_type
+        timestamptz requested_at
+        uuid time_slot_id FK
         text delivery_city
         text delivery_address
-        text delivery_zone_id FK
-        integer subtotal
-        integer delivery_fee
-        integer total
-        integer kashrut_warning_acknowledged
-        text submitted_at
-        text decided_at
+        uuid delivery_zone_id FK
+        numeric subtotal
+        numeric delivery_fee
+        numeric total
+        boolean kashrut_warning_acknowledged
+        timestamptz submitted_at
+        timestamptz decided_at
         text decision_note
-        text created_at
-        text updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     order_items {
-        text id PK
-        text caterer_id FK
-        text order_id FK
-        text dish_id FK
-        integer quantity
+        uuid id PK
+        uuid caterer_id FK
+        uuid order_id FK
+        uuid dish_id FK
+        numeric quantity
         text snapshot_name
-        text snapshot_pricing_unit
-        integer snapshot_unit_price
-        integer snapshot_line_total
+        pricing_unit snapshot_pricing_unit
+        numeric snapshot_unit_price
+        numeric snapshot_line_total
     }
 
     ai_conversations {
-        text id PK
-        text caterer_id FK
-        text order_id FK, UK
-        text created_at
+        uuid id PK
+        uuid caterer_id FK
+        uuid order_id FK, UK
+        timestamptz created_at
     }
 
     ai_messages {
-        text id PK
-        text caterer_id FK
-        text conversation_id FK
+        uuid id PK
+        uuid caterer_id FK
+        uuid conversation_id FK
         text role "user | assistant | tool"
-        text content "JSON"
-        text created_at
+        jsonb content
+        timestamptz created_at
     }
 
     ai_change_proposals {
-        text id PK
-        text caterer_id FK
-        text order_id FK
-        text conversation_id FK
-        integer base_order_version
-        text changes "JSON"
+        uuid id PK
+        uuid caterer_id FK
+        uuid order_id FK
+        uuid conversation_id FK
+        int base_order_version
+        jsonb changes
         text rationale
-        integer price_before
-        integer price_after
-        text status "pending | approved | rejected | expired | failed"
-        text created_at
-        text decided_at
-        text executed_at
+        numeric price_before
+        numeric price_after
+        proposal_status status "pending | approved | rejected | expired | failed"
+        timestamptz created_at
+        timestamptz decided_at
+        timestamptz executed_at
     }
 
     ai_usage {
-        text caterer_id PK, FK
-        text month PK
-        integer message_count
+        uuid caterer_id PK, FK
+        date month PK
+        int message_count
     }
 
     caterers ||--o{ caterer_users : "has logins"
