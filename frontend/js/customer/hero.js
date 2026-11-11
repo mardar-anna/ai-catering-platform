@@ -13,13 +13,27 @@ const MARGIN = 0.1; // media seconds: the outgoing layer stops this far before C
 const XFADE_AT = CUT - XFADE * RATE - MARGIN; // media time at which the crossfade starts
 
 let stopCurrent = null;
+// The visitor's pause button. Kept for the page's life, so coming back home stays paused.
+let userPaused = false;
 
-// Starts the hero in `media` (a .hero-media element holding one <video>). Returns a stop function.
-export function startHero(media) {
+// Starts the hero in `media` (a .hero-media element holding one <video>). `toggle` is the
+// pause/play button (WCAG 2.2.2: moving content can be paused). Returns a stop function.
+export function startHero(media, toggle = null) {
   stopCurrent?.();
   const first = media.querySelector(".hero-video");
   if (!first) return () => {};
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  // The system setting or the accessibility menu's "stop motion" keep the poster for good;
+  // the pause button keeps it until pressed again.
+  const motionOff = () => reduce.matches || document.documentElement.classList.contains("a11y-motion");
+  const still = () => motionOff() || userPaused;
+  const syncToggle = () => {
+    if (!toggle) return;
+    toggle.hidden = motionOff();
+    toggle.setAttribute("aria-pressed", String(userPaused));
+    toggle.querySelector(".icon").className = `icon icon-${userPaused ? "play_arrow" : "pause"}`;
+    toggle.querySelector(".label").textContent = userPaused ? "הפעלת הסרטון" : "עצירת הסרטון";
+  };
   // The file is downloaded once and both layers play the same in-memory copy; two
   // network <video>s would fetch it twice. Nothing is fetched with reduced motion.
   const SRC = first.dataset.src;
@@ -133,7 +147,7 @@ export function startHero(media) {
   const fail = () => { layers.forEach((video) => video.classList.add("is-unavailable")); showPoster(); };
 
   const start = () => {
-    if (reduce.matches || first.classList.contains("is-unavailable")) { showPoster(); return; }
+    if (still() || first.classList.contains("is-unavailable")) { showPoster(); return; }
     if (state !== "idle") return;
     front = first;
     back = second;
@@ -173,13 +187,17 @@ export function startHero(media) {
   const onVisibility = () => {
     if (state === "idle" || state === "stopped" || !blobUrl) return;
     if (document.hidden) front.pause();
-    else if (front.currentTime < CUT - 0.05) play(front);
+    else if (!still() && front.currentTime < CUT - 0.05) play(front);
   };
-  const onMotionChange = () => { if (reduce.matches) showPoster(); else start(); };
+  const onMotionChange = () => { syncToggle(); if (still()) showPoster(); else start(); };
+  const onToggle = () => { userPaused = !userPaused; onMotionChange(); };
   document.addEventListener("visibilitychange", onVisibility);
   reduce.addEventListener("change", onMotionChange);
+  document.addEventListener("a11y:change", onMotionChange);
+  toggle?.addEventListener("click", onToggle);
 
-  if (reduce.matches) showPoster();
+  syncToggle();
+  if (still()) showPoster();
   else start();
 
   // Leaving the homepage stops the loop and frees the in-memory copy.
@@ -188,6 +206,8 @@ export function startHero(media) {
     showPoster();
     document.removeEventListener("visibilitychange", onVisibility);
     reduce.removeEventListener("change", onMotionChange);
+    document.removeEventListener("a11y:change", onMotionChange);
+    toggle?.removeEventListener("click", onToggle);
     layers.forEach((video) => { video.removeAttribute("src"); video.load(); });
     if (blobUrl) URL.revokeObjectURL(blobUrl);
     if (stopCurrent === stop) stopCurrent = null;

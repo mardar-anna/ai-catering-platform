@@ -62,7 +62,7 @@ jobs:
           python-version: "3.12"
       - run: uv sync --frozen
       - run: uv run --with playwright playwright install --with-deps chromium
-      - run: uv run --with playwright pytest ../e2e --rootdir=../e2e
+      - run: uv run --with playwright --with axe-playwright-python pytest ../e2e --rootdir=../e2e
         env:
           E2E_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ai_catering_e2e_test
 

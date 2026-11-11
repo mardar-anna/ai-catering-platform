@@ -40,7 +40,7 @@ async function renderLogin() {
   const password = h("input", { type: "password", required: true, autocomplete: "current-password", dir: "ltr" });
   const submit = h("button", { type: "submit" }, icon("login"), "כניסה");
   const [brand, config] = await Promise.all([siteBrand(), getConfig().catch(() => ({}))]);
-  app.replaceChildren(h("main", { className: "login-page" },
+  app.replaceChildren(h("main", { className: "login-page", tabIndex: -1 },
     h("form", {
       className: "card login",
       onsubmit: async (event) => {

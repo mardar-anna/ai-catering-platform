@@ -1,4 +1,5 @@
 /* One class per icon in /img/icons (Material Symbols, Apache 2.0, see img/icons/LICENSE). */
+.icon-accessibility { --icon: url("/img/icons/accessibility.svg"); }
 .icon-add { --icon: url("/img/icons/add.svg"); }
 .icon-arrow_back { --icon: url("/img/icons/arrow_back.svg"); }
 .icon-arrow_forward { --icon: url("/img/icons/arrow_forward.svg"); }
@@ -36,7 +37,9 @@
 .icon-logout { --icon: url("/img/icons/logout.svg"); }
 .icon-mail { --icon: url("/img/icons/mail.svg"); }
 .icon-menu_book { --icon: url("/img/icons/menu_book.svg"); }
+.icon-pause { --icon: url("/img/icons/pause.svg"); }
 .icon-person { --icon: url("/img/icons/person.svg"); }
+.icon-play_arrow { --icon: url("/img/icons/play_arrow.svg"); }
 .icon-psychiatry { --icon: url("/img/icons/psychiatry.svg"); }
 .icon-receipt_long { --icon: url("/img/icons/receipt_long.svg"); }
 .icon-refresh { --icon: url("/img/icons/refresh.svg"); }

@@ -19,6 +19,7 @@ Where a working default is listed, engineering may build on it, but it stays ope
 | 20 | Platform brand | Product name, domain, logo | Platform identity; caterer branding is per caterer | "Yummai" as placeholder | Phase 8 |
 | 22 | Pilot caterer | Which real caterer is the first pilot? | Validates the defaults and the Phase 8 success criterion | None | Phase 8 |
 | 23 | Platform revenue model | How will caterers pay for the platform after the pilot? | No MVP work, but pricing may shape limits and analytics | Free during pilot | Nothing in MVP |
+| 24 | Accessibility contact | Who handles accessibility requests (name, phone, email), required in the accessibility statement? | The law requires a way to report accessibility problems | The statement shows a marked placeholder and the caterer's public phone | Final accessibility statement before the pilot |
 
 ## Decision log
 
