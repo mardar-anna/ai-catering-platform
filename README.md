@@ -8,9 +8,9 @@ Hebrew ordering and management site for **one catering business, טעם של י�
 
 Sample menu and made-up names. Design based on the Stitch mockups.
 
-**Homepage video** ([full video](frontend/media/hero.mp4)). On the site it plays at speed 0.6 and loops with a smooth crossfade, never fading to black.
+**Intro video** ([full video with music](docs/media/intro-video.mp4), 25 s). One order from start to finish: the menu, a dish, the AI assistant, the quote request and the caterer's approval. Made with HyperFrames from the real screenshots below.
 
-![The homepage video](docs/screenshots/hero.webp)
+![The intro video](docs/screenshots/intro.webp)
 
 | 1. Homepage | 2. Menu |
 |---|---|
